@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wordpress
+    app.kubernetes.io/instance: wordpress
+  name: wordpress
+  namespace: poly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        - env:
+            - name: WORDPRESS_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: db-endpoint
+                  name: my-config-map
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: my-wordpress-db-secret
+            - name: WORDPRESS_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: my-wordpress-db-secret
+            - name: WORDPRESS_DB_NAME
+              value: wordpressdb
+          image: wordpress:php8.1-apache
+          name: wordpress
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: 600m
+              memory: 600Mi
+            requests:
+              cpu: 300m
+              memory: 300Mi
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: wordpress-persistent-storage
+      volumes:
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: local-pv-claim

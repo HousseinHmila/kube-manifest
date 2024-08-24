@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  db-endpoint: wordpress-db.c1iwgm4g00ly.eu-west-3.rds.amazonaws.com:3306
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: wordpress
+  name: my-config-map
+  namespace: poly
